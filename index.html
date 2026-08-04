@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/ginlekha/">
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Log your photocopier's counter at every toner change, service call and month close, and find out what that machine has actually cost you per page across its whole life. Free and private: it runs on your own machine, needs no internet at runtime and makes no third-party requests. This demo stores nothing.">
+
+  <meta property="og:title" content="Photocopier cost per page — ginlekha">
+  <meta property="og:description" content="Real pages per cartridge and true rupees per page for the machine, measured between readings you actually took. Paper, electricity and rent are not in that figure unless you log them, and the sheet says so beside the number. No estimates, no interpolation, no verdict.">
+  <meta property="og:type" content="website">
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="ginlekha">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <title>Photocopier Cost Per Page Calculator — ginlekha</title>
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    :root { color-scheme: light dark; }
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+      font-feature-settings: "tnum"; }
+    #seo-landing { max-width: 780px; margin: 0 auto; padding: 24px 20px 8px; line-height: 1.55;
+      color: #151A21; background: #F3F5F8; }
+    #seo-landing h1 { font-size: 1.5rem; color: #2E4C74; margin: 0 0 10px; line-height: 1.25; }
+    #seo-landing h2 { font-size: 1.05rem; margin: 22px 0 6px; }
+    #seo-landing code { background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; }
+    #seo-landing table { border-collapse: collapse; width: 100%; font-size: 0.9rem; margin: 8px 0; }
+    #seo-landing th, #seo-landing td { border: 1px solid #7A8798; padding: 6px 8px; text-align: left; }
+    #seo-landing th { background: #DDE3EC; }
+    #seo-landing .muted { color: #4E5866; font-size: 0.9rem; }
+    #seo-landing .wheels { display: inline-flex; gap: 2px; vertical-align: -2px; }
+    #seo-landing .wheels span { display: inline-block; width: 12px; height: 16px;
+      border: 1px solid #2E4C74; background: #2E4C74; }
+    #seo-landing .wheels span:last-child { background: #DDE3EC; }
+    #flutter-app { height: 82vh; min-height: 540px; border-top: 3px solid #2E4C74; }
+    @media (prefers-color-scheme: dark) {
+      #seo-landing { color: #E7ECF3; background: #0E1319; }
+      #seo-landing h1 { color: #93B7E3; }
+      #seo-landing code { background: rgba(255,255,255,0.12); }
+      #seo-landing th, #seo-landing td { border-color: #63728A; }
+      #seo-landing th { background: #24303F; }
+      #seo-landing .muted { color: #A2AEBD; }
+      #seo-landing .wheels span { border-color: #93B7E3; background: #93B7E3; }
+      #seo-landing .wheels span:last-child { background: #24303F; }
+    }
+  </style>
+
+  <!-- The Flutter canvas is not crawlable, so the facts live in real HTML plus
+       JSON-LD. This page makes no THIRD-PARTY request: every script, font and
+       the CanvasKit runtime are served from this origin, and the engine's
+       font-fallback URL is pinned below. It is not a claim of "no network call
+       of any kind" — the page itself is loaded over the network, and a glyph
+       missing from the bundled fonts would be requested from this origin. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ginlekha",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web, Windows, macOS, Linux, Android, iOS",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+    "description": "A photocopier cost-per-page calculator and meter-reading log. Record the counter at every month close, toner change and service visit, add the rupee amounts off the invoices you already keep, and get measured pages per cartridge and true cost per page across the machine's whole life — plus a printable A4 retirement sheet and a blank counter register."
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I calculate cost per page on a photocopier?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Take the counter reading off the machine at two points in time and subtract: that is the pages it really ran. Add up what you spent on it between those two readings and divide. ginlekha does exactly that arithmetic in integer paise and shows the result to four rupee decimals. Be careful what \u2018cost per page\u2019 means: most calculators, and the industry formula, include PAPER. ginlekha counts only the rupees you enter against the machine \u2014 toner, paper, drum, roller, developer, service calls, AMC, parts \u2014 so paper is in the figure only if you log your ream invoices, and electricity, rent and your own time are never in it. Every sheet says which of those is true of your data, next to the number. It reports two figures, never one: running cost per page, which excludes what you paid for the machine, and all-in cost per page, which includes it." }
+      },
+      {
+        "@type": "Question",
+        "name": "How many pages does a toner cartridge actually give?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Only your own machine can tell you. Log a reading each time you change the toner and ginlekha reports the pages between consecutive changes. On the invented sample machine those two complete runs were 17,800 and 17,500 pages, a mean of 17,650 over n=2 — and the figure always prints its n beside it. The cartridge that was already in the machine when you got it, and the one running now, are labelled as such and are not yields." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does the cost per page include paper?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Only if you log it. Paper is one of the cost categories, so an owner who keeps his ream invoices can enter them and they go straight into the figure. If you have not entered any, the sheet says so in a line printed beside the number: paper is not in it, and neither are electricity, rent or your own time. That matters because in the Indian trade paper alone typically runs a few times the machine\u2019s own cost per page, so a page you sell always costs more than the figure ginlekha shows. The app will not guess a paper price for you \u2014 it ships no reference data at all." }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens to a month where I forgot to take a reading?",
+        "acceptedAnswer": { "@type": "Answer", "text": "It is shown as a gap, not as an estimate. ginlekha never interpolates: if you take two readings four months apart, it will tell you the pages for those four months and refuse to tell you the pages for any single month inside them. The pages and the rupees in that stretch are still counted in every lifetime figure — the readings either side of them were real. The only thing refused is splitting the stretch by month." }
+      },
+      {
+        "@type": "Question",
+        "name": "What if the counter was reset when the board was replaced?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Log the reading as a meter reset. The stretch across the reset is marked NOT MEASURED, its pages go into no denominator at all, and any rupees dated inside it are listed separately as not yet divided. That is different from a gap: a gap is measured and counted, a reset stretch is not measurable and is excluded. A counter that drops without a reset logged is refused outright as a probable typo, naming both readings." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does ginlekha tell me when to replace the copier?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No, and it never will. It shows the lifetime running cost per page, the last six months' running cost per page, and the plain multiple between them. A rising recent figure has many causes — a heavy job, a one-off drum, a quiet season, a price rise — and no app can tell them apart from two numbers. The decision is yours." }
+      },
+      {
+        "@type": "Question",
+        "name": "Where does the data come from?",
+        "acceptedAnswer": { "@type": "Answer", "text": "From you, entirely. ginlekha ships zero reference data: no cartridge yield tables, no typical cost-per-page bands, no machine specifications, no service-interval norms. Every number on every screen is arithmetic over counter readings you read off the machine and rupee amounts you copied from invoices you already hold. The sample machine in the demo below is invented and is labelled invented, on screen and on paper." }
+      },
+      {
+        "@type": "Question",
+        "name": "Does it do customer dues, billing or staff records?",
+        "acceptedAnswer": { "@type": "Answer", "text": "No, deliberately. There is no credit, udhaar or dues ledger of any kind — ginlekha records what the machine cost you, never what a customer owes you. No staff attendance, wages or salary register. No customer billing, job cards or quotations. No AMC contract audit. No live toner prices and no internet at runtime." }
+      },
+      {
+        "@type": "Question",
+        "name": "Where is my data stored?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Locally. The full app is a small binary you run on your own machine; your data is a single SQLite file beside it and the app serves itself on localhost. There is no account, no sync and no encryption — anyone with the file can read it, so keep a backup where you keep your other records. This web demo keeps everything in the browser tab and a refresh wipes it." }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <main id="seo-landing">
+    <h1>Photocopier cost per page — log the counter, get real pages per cartridge and true rupees per page for the machine</h1>
+
+    <p><span class="wheels"><span></span><span></span><span></span></span>
+    <strong>ginlekha</strong> is for the owner of a family photocopy, DTP or printing
+    counter with one to three machines, a paper register on the wall, and no per-click
+    contract. Everything it needs is a number the machine already shows you and a number
+    already printed on an invoice you already keep.</p>
+
+    <p>You touch it twice a month at most: once at month close, and once whenever a toner,
+    drum or service invoice lands.</p>
+
+    <h2>A worked example — the invented machine in the demo below</h2>
+    <p>Bought second-hand on 2025-01-15 with <code>128,400</code> already on the counter,
+    for ₹48,000. Twelve readings later the counter reads <code>201,050</code> on
+    2026-06-30. That is <strong>72,650 measured pages over 531 days</strong>, with ₹9,250
+    of toner, drum, roller and service calls in between.</p>
+
+    <h2>What the cartridge table shows</h2>
+    <p>The toner was changed on 2025-03-20, 2025-07-18 and 2025-11-26. Only the middle two
+    runs are closed at both ends, so only those two are yields:</p>
+
+    <table>
+      <thead>
+        <tr><th>Toner change to toner change</th><th>Pages</th><th>Toner invoice</th><th>÷ pages</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>2025-01-15 – 2025-03-20</td><td>12,700</td><td>—</td><td>— the cartridge already in the machine. Not a yield.</td></tr>
+        <tr><td>2025-03-20 – 2025-07-18</td><td>17,800</td><td>₹950.00</td><td>₹0.0534 per page</td></tr>
+        <tr><td>2025-07-18 – 2025-11-26</td><td>17,500</td><td>₹950.00</td><td>₹0.0543 per page</td></tr>
+        <tr><td>2025-11-26 – 2026-06-30</td><td>24,650</td><td>₹1,050.00</td><td>— still running. Not a final yield.</td></tr>
+      </tbody>
+    </table>
+
+    <p class="muted">Mean yield <strong>17,650 pages, n=2</strong> — and that <code>n=2</code>
+    prints beside it every single time, because two runs is what it is. That is what this
+    invented machine did; it is not a specification, a benchmark, or what your machine
+    should do.</p>
+
+    <h2>And the two-window sheet, which is the point</h2>
+    <table>
+      <thead>
+        <tr><th>Window</th><th>Numerator ÷ denominator</th><th>Cost per page</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Lifetime, running</td><td>₹9,250.00 ÷ 72,650 measured pages<br>measured 2025-01-15 – 2026-06-30, 531 days</td><td><strong>₹0.1273</strong></td></tr>
+        <tr><td>Last 6 months, running</td><td>₹5,700.00 ÷ 24,650 measured pages<br>measured 2025-11-26 – 2026-06-30, 216 days</td><td><strong>₹0.2312</strong></td></tr>
+        <tr><td>Lifetime, all-in (purchase included)</td><td>₹57,250.00 ÷ 72,650 measured pages</td><td>₹0.7880</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>1.82× the lifetime running average.</strong> Both figures in that multiple
+    are running cost ÷ measured pages — the purchase price is in neither, and no setting in
+    the app can change which windows feed it. Those 216 trailing days are <em>part of</em>
+    the 531-day lifetime figure, not compared against the rest of it.</p>
+
+    <p class="muted">The trailing window snaps to <em>real readings</em>. Six months before
+    2026-06-30 is 2025-12-30, but there is no reading on that date, so the window anchors to
+    the last reading on or before it — 2025-11-26 — and says so: 216 days, not 182. The
+    ₹1,050 of toner dated <em>on</em> that anchor is excluded from the trailing window, so it
+    is never counted twice between the two.</p>
+
+    <p><strong>What is in those figures — and what is not.</strong> They are what the
+    MACHINE costs: the rupees you entered against it. On this invented machine no paper
+    invoices were logged, so paper is not in them, and electricity, rent and your own time
+    are never in them. That line is printed beside the numbers on screen and on the A4
+    sheet, and it changes when the data does: log a ream invoice under the
+    <code>paper</code> category and the sheet says instead <em>"Paper IS in these figures:
+    ₹18,150.00 of ₹27,400.00"</em>. Elsewhere in the trade "cost per page" usually means
+    paper included — for an Indian counter paper alone is commonly several times the
+    machine figure — so <strong>a page you sell costs more than the number above</strong>.</p>
+
+    <p class="muted">There is no verdict here. ginlekha will not tell you to replace the
+    machine, will not estimate a payback, and will not forecast. A rising recent figure has
+    many causes — a heavy job, a one-off drum, a quiet season, a price rise — and two
+    numbers cannot tell them apart.</p>
+
+    <h2>What it refuses to do</h2>
+    <p><strong>It never interpolates.</strong> If you did not take a reading, ginlekha does
+    not guess what the counter was. On this machine one stretch — 91 days, the winter with no
+    reading in it — runs longer than the 70-day setting, and it is shown as a
+    <code>GAP</code> row with its own day count. The threshold is a setting and it is
+    printed with the count; at 45 days seven of these eleven stretches would flag, which
+    is why the shipped default is 70: a shop taking genuine monthly readings runs 28–31
+    days, so 70 means you missed two months in a row. The
+    pages and the rupees inside a gap <em>are</em> counted — the readings either side of
+    them were real — and the only thing refused is splitting that gap by month. A stretch
+    across a <em>meter reset</em> is different: it is marked <code>NOT MEASURED</code>, its
+    pages enter no denominator, and rupees inside it are listed as not yet divided.</p>
+
+    <h2>What it will not do at all</h2>
+    <p>No customer credit, <strong>udhaar or dues ledger of any kind</strong>. No staff
+    attendance, wages or salary register. No customer billing, job cards or quotations. No
+    AMC contract audit. No keep-or-replace recommendation, payback estimate or forecast. No
+    live toner prices, no vendor catalogue and no internet at runtime. No photo-of-the-meter
+    reading. ginlekha ships <strong>zero facts</strong>: every number on every screen is one
+    you typed.</p>
+
+    <h2>Two things it prints</h2>
+    <p>A one-page A4 <strong>retirement sheet</strong> — both cost-per-page figures, the
+    multiple, the cartridge yields, the category breakdown, the gaps, the rupees not yet
+    divided, and the block that qualifies all of them, on the same page. And a blank
+    <strong>counter register</strong>: 24 ruled rows to clip above the machine and fill in
+    by pen, with the last recorded counter printed at the top so the first paper line is
+    already anchored.</p>
+
+    <h2>Try it below</h2>
+    <p>The app below is loaded with the invented machine described above. Edit it, add your
+    own readings, print the sheet — nothing you type leaves this page.</p>
+  </main>
+
+  <div id="flutter-app"></div>
+
+  <script src="flutter.js" defer></script>
+  <!-- buildConfig is injected here at build time from the generated
+       flutter_bootstrap.js (scripts/build-web.sh). Without it the loader throws
+       "requires _flutter.buildConfig" and the app below never mounts. -->
+  <script>window._flutter=window._flutter||{};_flutter.buildConfig = {"engineRevision":"c416acfeb8126e097f758c664aaa3da929e27da0","builds":[{"compileTarget":"dart2js","renderer":"canvaskit","mainJsPath":"main.dart.js"},{}],"useLocalCanvasKit":true};</script>
+  <script>
+    window.addEventListener("load", function () {
+      _flutter.loader.load({ config: {
+        hostElement: document.getElementById("flutter-app"),
+        // The engine's font-fallback base URL defaults to
+        // "https://fonts.gstatic.com/s/" and is fetched only when a glyph is
+        // missing from the bundled fonts. Pinned to this site's own origin so
+        // that path can never reach a third party either: a missing glyph
+        // becomes a 404 here, not a request to Google. CanvasKit itself is
+        // vendored (--no-web-resources-cdn).
+        fontFallbackBaseUrl: "assets/fonts/"
+      } });
+    });
+  </script>
+</body>
+</html>
